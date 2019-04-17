@@ -54,7 +54,7 @@ BOOL WINAPI MyModule32FirstW(HANDLE hSnapshot, LPMODULEENTRY32W lpme)
 {
 	if (std::find(g_fakeHandleList.begin(), g_fakeHandleList.end(), hSnapshot) != g_fakeHandleList.end())
 	{
-		DWORD pathsize = sizeof(lpme->szExePath);
+		DWORD pathsize = _countof(lpme->szExePath);
 		return QueryFullProcessImageNameW(hSnapshot, 0, lpme->szExePath, &pathsize);
 	}
 	return g_pfnModule32FirstW(hSnapshot, lpme);
@@ -71,4 +71,11 @@ void Init()
 	Mhook_SetHook((PVOID*)&g_pfnCreateToolhelp32Snapshot, (PVOID)MyCreateToolhelp32Snapshot);
 	Mhook_SetHook((PVOID*)&g_pfnModule32FirstW, (PVOID)MyModule32FirstW);
 	Mhook_SetHook((PVOID*)&g_pfnCloseHandle, (PVOID)MyCloseHandle);
+}
+
+void Unload()
+{
+	Mhook_Unhook((PVOID*)&g_pfnCreateToolhelp32Snapshot);
+	Mhook_Unhook((PVOID*)&g_pfnModule32FirstW);
+	Mhook_Unhook((PVOID*)&g_pfnCloseHandle);
 }

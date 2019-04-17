@@ -117,12 +117,15 @@ void Loadmsimg32(HINSTANCE hModule)
 			lstrcat(szDLLPath, TEXT("\\msimg32.dll"));
 
 			HINSTANCE module = LoadLibrary(szDLLPath);
-			for (size_t i = 0; i < pimExD->NumberOfNames; i++)
+			if (module)
 			{
-				MWORD Original = (MWORD)GetProcAddress(module, (char*)(pImageBase + pName[i]));
-				if (Original)
+				for (size_t i = 0; i < pimExD->NumberOfNames; i++)
 				{
-					InstallJMP(pImageBase + pFunction[pNameOrdinals[i]], Original);
+					MWORD Original = (MWORD)GetProcAddress(module, (char*)(pImageBase + pName[i]));
+					if (Original)
+					{
+						InstallJMP(pImageBase + pFunction[pNameOrdinals[i]], Original);
+					}
 				}
 			}
 		}
